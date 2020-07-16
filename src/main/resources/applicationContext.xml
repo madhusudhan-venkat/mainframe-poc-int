@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+ 	
+ 	<bean id="connectionPoolProperties" class="com.ibm.connector2.spi.DefaultConnectionPoolProperties">
+	  <property name="connectionTimeout" value="${ctg.connectionTimeout}"/>
+	  <property name="minConnections" value="${ctg.minConnections}"/>
+	  <property name="maxConnections" value="${ctg.maxConnections}"/>
+	  <property name="unusedTimeout" value="${ctg.unusedTimeout}"/>
+	  <property name="reapTime" value="${ctg.reapTime}"/>
+	</bean>
+	
+	<bean id="defaultConnectionManager" class="com.ibm.connector2.spi.DefaultConnectionManager">
+		<property name="connectionPoolProperties" ref="connectionPoolProperties" />
+	</bean>
+ 	
+	<!--  H4 -->
+	<bean id="eciManagedConnectionFactory"
+	 	  class="com.ibm.connector2.cics.ECIManagedConnectionFactory">
+		<property name="serverName" value="${ctg.serverName}" />
+		<property name="connectionURL" value="${ctg.connectionURL}" />
+		<property name="portNumber" value="${ctg.portNumber}" />
+		<property name="TPNName" value="${ctg.TPNName}" />
+	</bean>  
+
+	<bean id="eciConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean">
+	  <property name="managedConnectionFactory" ref="eciManagedConnectionFactory"/>
+	  <property name="connectionManager" ref="defaultConnectionManager" />
+	</bean>
+	
+	<bean id="mfIntegrationService" class="com.landg.mfservice.service.MainframeIntegrationServiceDaoImpl">
+		<property name="connectionFactory" ref ="eciConnectionFactory"/>
+	</bean>
+	
+</beans>
